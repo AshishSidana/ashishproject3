@@ -36,19 +36,32 @@ def songs_upload():
         filename = secure_filename(form.file.data.filename)
         filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], filename)
         form.file.data.save(filepath)
+        # log the song file
+        log.info('Songs file uploaded filepath: '+ filepath)
         #user = current_user
         list_of_songs = []
         with open(filepath) as file:
             csv_file = csv.DictReader(file)
             for row in csv_file:
-                list_of_songs.append(Song(row['Name'],row['Artist']))
+                list_of_songs.append(Song(row['Name'],row['Artist'],row['Year'],row['Genre']))
 
+        db.session.commit()
         current_user.songs = list_of_songs
         db.session.commit()
 
-        return redirect(url_for('songs.songs_browse'))
+        return redirect(url_for('auth.dashboard'))
 
     try:
         return render_template('upload.html', form=form)
     except TemplateNotFound:
         abort(404)
+
+@songs.route('/songs/delete', methods=['POST', 'GET'])
+@login_required
+def songs_delete():
+    db.session.query(Song).delete()
+    db.session.commit()
+    log = logging.getLogger("myApp")
+    log.info('All songs has been deleted')
+
+    return redirect(url_for('auth.dashboard'))

@@ -1,7 +1,8 @@
 import os
 
 class Config(object):
-    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    #BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+    BASE_DIR = os.getcwd()
     DEBUG = False
     TESTING = False
     SECRET_KEY = 'This is an INSECURE secret!! DO NOT use this in production!!'
@@ -26,5 +27,6 @@ class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     SESSION_COOKIE_SECURE = False
+    WTF_CSRF_ENABLED = False
     DEBUG = True
 

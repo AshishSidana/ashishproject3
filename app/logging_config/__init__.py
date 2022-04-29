@@ -5,19 +5,23 @@ from logging.config import dictConfig
 import flask
 from flask import request, current_app
 
-#from app.logging_config.log_formatters import RequestFormatter
+from app.logging_config.log_formatters import RequestFormatter
 from app import config
 
 log_con = flask.Blueprint('log_con', __name__)
 
 
-#@log_con.before_app_request
-#def before_request_logging():
+@log_con.before_app_request
+def before_request_logging():
+    log = logging.getLogger("request")
+    log.info('Before request')
 
 
 
 @log_con.after_app_request
 def after_request_logging(response):
+    log = logging.getLogger("request")
+    log.info('After request processed send response with status: ' + str(response.status_code))
     if request.path == '/favicon.ico':
         return response
     elif request.path.startswith('/static'):
@@ -44,8 +48,11 @@ LOGGING_CONFIG = {
     'formatters': {
         'standard': {
             'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+        },        
+        'requestFormatter': {
+            '()': RequestFormatter,
+            'format': '%(levelname)s [%(asctime)s]  %(name)s: %(message)s \n %(remote_addr)s requested %(url)s on %(ip)s (%(host)s) with %(args)s'
         },
-
     },
     'handlers': {
         'default': {
@@ -70,7 +77,7 @@ LOGGING_CONFIG = {
         },
         'file.handler.request': {
             'class': 'logging.handlers.RotatingFileHandler',
-            'formatter': 'standard',
+            'formatter': 'requestFormatter',
             'filename': os.path.join(config.Config.LOG_DIR,'request.log'),
             'maxBytes': 10000000,
             'backupCount': 5,
@@ -120,6 +127,11 @@ LOGGING_CONFIG = {
         },
         'myApp': {  # if __name__ == '__main__'
             'handlers': ['file.handler.myapp'],
+            'level': 'DEBUG',
+            'propagate': False
+        },
+        'request': {  # if __name__ == '__main__'
+            'handlers': ['file.handler.request'],
             'level': 'DEBUG',
             'propagate': False
         },
