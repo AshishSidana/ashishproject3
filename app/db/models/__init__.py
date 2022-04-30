@@ -14,14 +14,15 @@ class Song(db.Model,SerializerMixin):
     artist = db.Column(db.String(300), nullable=True, unique=False)
     year = db.Column(db.Integer, nullable=True, unique=False)
     genre = db.Column(db.String(300), nullable=True, unique=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
-    user = relationship("User", back_populates="songs", uselist=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    #user = relationship("User", back_populates="songs", uselist=False)
 
-    def __init__(self, title, artist, year, genre):
+    def __init__(self, title, artist, year, genre, user_id):
         self.title = title
         self.artist = artist
         self.year = year
         self.genre = genre
+        self.user_id = user_id
 
 class Location(db.Model, SerializerMixin):
     __tablename__ = 'locations'
@@ -61,7 +62,7 @@ class User(UserMixin, db.Model):
     registered_on = db.Column('registered_on', db.DateTime)
     active = db.Column('is_active', db.Boolean(), nullable=False, server_default='1')
     is_admin = db.Column('is_admin', db.Boolean(), nullable=False, server_default='0')
-    songs = db.relationship("Song", back_populates="user", cascade="all, delete")
+    songs = db.relationship("Song", backref="user", cascade="all, delete")
     locations = db.relationship("Location", back_populates="user", cascade="all, delete")
 
     # `roles` and `groups` are reserved words that *must* be defined
