@@ -38,16 +38,16 @@ def songs_upload():
         form.file.data.save(filepath)
         # log the song file
         log.info('Songs file uploaded filepath: '+ filepath)
-        #user = current_user
-        list_of_songs = []
+
         with open(filepath) as file:
             csv_file = csv.DictReader(file)
             for row in csv_file:
-                list_of_songs.append(Song(row['Name'],row['Artist'],row['Year'],row['Genre']))
 
-        db.session.commit()
-        current_user.songs = list_of_songs
-        db.session.commit()
+                # user can upload same song one time, filter is based on song title & user_id
+                song = Song.query.filter_by(title=row['Name'], user_id=current_user.id).first()
+                if song is None:
+                    current_user.songs.append(Song(row['Name'],row['Artist'],row['Year'],row['Genre'], current_user.id))
+                    db.session.commit()
 
         return redirect(url_for('auth.dashboard'))
 
@@ -59,6 +59,16 @@ def songs_upload():
 @songs.route('/songs/delete', methods=['POST', 'GET'])
 @login_required
 def songs_delete():
+    Song.query.filter_by(user_id=current_user.id).delete()
+    db.session.commit()
+    log = logging.getLogger("myApp")
+    log.info('My songs has been deleted')
+
+    return redirect(url_for('auth.dashboard'))
+
+@songs.route('/songs/deleteAll', methods=['POST', 'GET'])
+@login_required
+def songs_delete_all():
     db.session.query(Song).delete()
     db.session.commit()
     log = logging.getLogger("myApp")

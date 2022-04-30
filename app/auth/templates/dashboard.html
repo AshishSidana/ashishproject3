@@ -11,7 +11,9 @@
 
     <a href="{{ url_for("songs.songs_upload") }}" class="btn col-3 mb-5 btn-info" role="button">Upload Songs</a>
     &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
-    <a href="{{ url_for("songs.songs_delete") }}" class="btn col-3 mb-5 btn-danger" role="button">Delete All Songs</a>
+    <a href="{{ url_for("songs.songs_delete") }}" class="btn col-3 mb-5 btn-warning" role="button">Delete My Songs</a>
+    &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+    <a href="{{ url_for("songs.songs_delete_all") }}" class="btn col-3 mb-5 btn-danger" role="button">Delete All Songs</a>
 
     <h2>Browse: Songs</h2>
     {{ render_table(data) }}
